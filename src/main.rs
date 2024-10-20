@@ -9,7 +9,7 @@ struct Cli {
 fn main() {
     /*	
         Step 1:
-        Create empty cli commands: larn init, larn add, and larn learn
+        Create empty cli commands: larn init, larn add, and larn learn [Done]
         Step 2
         Implement helper to store code changes ->git diff > changes.patch and git add .
         Step 3
@@ -19,7 +19,7 @@ fn main() {
         Step 5 
         Implement larn learn
         Step 6
-        Implement larn 6
+        Implement larn init
         Step 7
         Deploy rust package
     */
