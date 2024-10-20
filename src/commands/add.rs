@@ -1,18 +1,70 @@
 
-use std::process::{Command, Output};
+use core::str;
+use std::process::Command;
+use reqwest::Client;
+use std::env;
+use serde_json::json;
+use std::error::Error;
+use serde_json::Value;
 
-fn get_changes()->Output{
+fn get_changes()->String{
     let diff = Command::new("git").arg("diff").output().expect("Failed to execute diff");
     Command::new("git").arg("add").arg(".").status().expect("Failed to execute add");
+    let diff_string = str::from_utf8(&diff.stdout)
+        .expect("Failed to convert output to string")
+        .to_string();
 
-    return diff;
+    return diff_string;
+}
+
+
+
+
+#[tokio::main] 
+async fn get_feedback(changes:&str) -> Result<(), Box<dyn Error>> {
+    let openai_api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+
+    let client = Client::new();
+
+    let request_body = json!({
+        "model": "gpt-4o-mini",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a highly skilled code reviewer. You will analyze the following git diffs to find mistakes and areas of improvement. Do not write any code.Make your suggestions concise."
+            },
+            {
+                "role": "user",
+                "content": changes
+            }
+        ]
+    });
+
+    let response = client
+        .post("https://api.openai.com/v1/chat/completions")
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", openai_api_key))
+        .json(&request_body)
+        .send()
+        .await?; 
+
+    let response_json:Value = response.json().await?;
+
+    if let Some(choices) = response_json["choices"].as_array() {
+        if let Some(choice) = choices.get(0) {
+            if let Some(message) = choice["message"]["content"].as_str() {
+                println!("Assistant's response: {}", message);
+            }
+        }
+    }
+
+    Ok(())
+
 
 }
 
-fn get_feedback(){
-
-}
 
 pub fn add(){
-    println!("{:?}",get_changes());
+    let changes = get_changes();
+    let feedback = get_feedback(&changes);
 }

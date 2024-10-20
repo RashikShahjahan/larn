@@ -14,14 +14,16 @@ fn main() {
         Step 2
         Implement helper to store code changes ->git diff and git add .[Done]
         Step 3
-        Implement helper to make LLM calls and store responses in file
+        Implement helper to make LLM calls[Done]
         Step 4
         Implement larn add
-        Step 5 
-        Implement larn learn
+        Step 5
+        Implement helper to write to DB
         Step 6
-        Implement larn init
+        Implement larn learn
         Step 7
+        Implement larn init
+        Step 8
         Deploy rust package
     */
     
