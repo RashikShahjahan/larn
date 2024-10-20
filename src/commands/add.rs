@@ -20,18 +20,19 @@ fn get_changes()->String{
     return diff_string;
 }
 
-fn add_feedback(key:i32,val:&str) -> redis::RedisResult<()> {
+fn add_feedback(val:&str) -> redis::RedisResult<String> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
-    let _: () = con.set(key,val)?;
+    let key: i32 = con.incr("feedback_counter", 1)?;
 
-    Ok(())
+    let _: () = con.set(key.to_string(), val)?;
+    Ok(key.to_string())
 }
 
 
 
 #[tokio::main] 
-async fn get_feedback(changes:&str,key:i32) -> Result<(), Box<dyn Error>> {
+async fn get_feedback(changes:&str) -> Result<(), Box<dyn Error>> {
     let openai_api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
 
     let client = Client::new();
@@ -41,7 +42,7 @@ async fn get_feedback(changes:&str,key:i32) -> Result<(), Box<dyn Error>> {
         "messages": [
             {
                 "role": "system",
-                "content": "You are a highly skilled code reviewer. You will analyze the following git diffs to find mistakes and areas of improvement. Do not write any code.Make your suggestions concise."
+                "content": "You are a highly skilled code reviewer. You will analyze the following git diffs to find 3 mistakes and/or areas of improvement. Do not write any code.Make your suggestions concise."
             },
             {
                 "role": "user",
@@ -64,7 +65,7 @@ async fn get_feedback(changes:&str,key:i32) -> Result<(), Box<dyn Error>> {
         if let Some(choice) = choices.get(0) {
             if let Some(message) = choice["message"]["content"].as_str() {
                 println!("Assistant's response: {}", message);
-                let _ = add_feedback(key,message);
+                let _ = add_feedback(message);
             }
         }
     }
@@ -75,7 +76,7 @@ async fn get_feedback(changes:&str,key:i32) -> Result<(), Box<dyn Error>> {
 }
 
 
-pub fn add(key:i32){
+pub fn add(){
     let changes = get_changes();
-    let _ = get_feedback(&changes,key);
+    let _ = get_feedback(&changes);
 }

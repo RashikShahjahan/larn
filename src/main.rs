@@ -18,7 +18,7 @@ fn main() {
         Step 4
         Implement helper to write to Redis[Done]
         Step 5
-        Implement function to read all feedback in Redis and pass them to LLM for finding trends in coding mistakes and giving excercises to fix those issues
+        Implement function to read all feedback in Redis and pass them to LLM for finding trends in coding mistakes and giving excercises to fix those issues[Done]
         Step 6
         Implement interactive logic for init to specify what file types user wants to track
         Step 7
@@ -26,16 +26,15 @@ fn main() {
     */
     
     let args = Cli::parse();
-    let key = 0;
     if args.command == "init"{
         println!("larn init");
     }
     else if args.command == "add"{
         println!("larn add");
-        commands::add::add(key);
+        commands::add::add();
     }
     else if args.command == "learn"{
-        println!("larn learn");
+        commands::learn::learn();
     }
     else{
         println!("{} is not a valid command" , args.command);
