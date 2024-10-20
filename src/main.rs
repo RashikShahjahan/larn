@@ -16,7 +16,7 @@ fn main() {
         Step 3
         Implement helper to make LLM calls[Done]
         Step 4
-        Implement helper to write to Redis
+        Implement helper to write to Redis[Done]
         Step 5
         Implement function to read all feedback in Redis and pass them to LLM for finding trends in coding mistakes and giving excercises to fix those issues
         Step 6
