@@ -1,4 +1,5 @@
 use clap::Parser;
+mod commands;
 
 #[derive(Parser)]
 struct Cli {
@@ -11,9 +12,9 @@ fn main() {
         Step 1:
         Create empty cli commands: larn init, larn add, and larn learn [Done]
         Step 2
-        Implement helper to store code changes ->git diff > changes.patch and git add .
+        Implement helper to store code changes ->git diff and git add .[Done]
         Step 3
-        Implement helper to LLM calls and store responses in file
+        Implement helper to make LLM calls and store responses in file
         Step 4
         Implement larn add
         Step 5 
@@ -30,6 +31,7 @@ fn main() {
     }
     else if args.command == "add"{
         println!("larn add");
+        commands::add::add();
     }
     else if args.command == "learn"{
         println!("larn learn");
