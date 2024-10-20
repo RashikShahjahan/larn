@@ -16,24 +16,23 @@ fn main() {
         Step 3
         Implement helper to make LLM calls[Done]
         Step 4
-        Implement larn add
+        Implement helper to write to Redis
         Step 5
-        Implement helper to write to DB
+        Implement function to read all feedback in Redis and pass them to LLM for finding trends in coding mistakes and giving excercises to fix those issues
         Step 6
-        Implement larn learn
+        Implement interactive logic for init to specify what file types user wants to track
         Step 7
-        Implement larn init
-        Step 8
         Deploy rust package
     */
     
     let args = Cli::parse();
+    let key = 0;
     if args.command == "init"{
         println!("larn init");
     }
     else if args.command == "add"{
         println!("larn add");
-        commands::add::add();
+        commands::add::add(key);
     }
     else if args.command == "learn"{
         println!("larn learn");

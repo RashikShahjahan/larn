@@ -1,11 +1,13 @@
 
 use core::str;
 use std::process::Command;
+use redis::Commands;
 use reqwest::Client;
 use std::env;
 use serde_json::json;
 use std::error::Error;
 use serde_json::Value;
+extern crate redis;
 
 fn get_changes()->String{
     let diff = Command::new("git").arg("diff").output().expect("Failed to execute diff");
@@ -17,17 +19,24 @@ fn get_changes()->String{
     return diff_string;
 }
 
+fn add_feedback(key:i32,val:&str) -> redis::RedisResult<()> {
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+    let _: () = con.set(key,val)?;
+
+    Ok(())
+}
 
 
 
 #[tokio::main] 
-async fn get_feedback(changes:&str) -> Result<(), Box<dyn Error>> {
+async fn get_feedback(changes:&str,key:i32) -> Result<(), Box<dyn Error>> {
     let openai_api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
 
     let client = Client::new();
 
     let request_body = json!({
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o",
         "messages": [
             {
                 "role": "system",
@@ -54,6 +63,7 @@ async fn get_feedback(changes:&str) -> Result<(), Box<dyn Error>> {
         if let Some(choice) = choices.get(0) {
             if let Some(message) = choice["message"]["content"].as_str() {
                 println!("Assistant's response: {}", message);
+                let _ = add_feedback(key,message);
             }
         }
     }
@@ -64,7 +74,7 @@ async fn get_feedback(changes:&str) -> Result<(), Box<dyn Error>> {
 }
 
 
-pub fn add(){
+pub fn add(key:i32){
     let changes = get_changes();
-    let feedback = get_feedback(&changes);
+    let _ = get_feedback(&changes,key);
 }
