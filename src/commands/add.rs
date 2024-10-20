@@ -10,7 +10,8 @@ use serde_json::Value;
 extern crate redis;
 
 fn get_changes()->String{
-    let diff = Command::new("git").arg("diff").output().expect("Failed to execute diff");
+    //Here you go
+    let diff = Command::new("git").arg("diff").arg("--").arg("*.rs").output().expect("Failed to execute diff");
     Command::new("git").arg("add").arg(".").status().expect("Failed to execute add");
     let diff_string = str::from_utf8(&diff.stdout)
         .expect("Failed to convert output to string")
