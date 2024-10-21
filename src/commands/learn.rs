@@ -35,20 +35,25 @@ fn retrieve_feedback() -> Result<String, Box<dyn Error>> {
 }
 
 
-async fn get_detailed_feedback(feedback: &str)-> Result<String, Box<dyn Error>> {
-    let system_prompt = "Please review this list of flaws in a software engineers code changes and identify upto 3 things software engineer is most struggling with. Create a set of programming challenges to help them improve on those areas";
+async fn identfy_issues(feedback: &str)-> Result<String, Box<dyn Error>> {
+    let system_prompt = "Please review this list of flaws in a software engineers code changes and identify upto 3 things software engineer is most struggling with.";
     
                         let response = prompt_gpt(system_prompt, feedback, "gpt-4o").await?;
                         Ok(response)
 }
 
-
+async fn assign_problems(issues: &str)-> Result<String, Box<dyn Error>> {
+    let system_prompt = " Create a programming programming challenge to help a Software engineer improve on the following areas";
+    
+                        let response = prompt_gpt(system_prompt,issues , "gpt-4o").await?;
+                        Ok(response)
+}
 
 
 
 pub async  fn learn()-> Result<String, Box<dyn Error>> {
     let  result = retrieve_feedback()?;
-    let detailed_feedback= get_detailed_feedback(&result).await?;
-    Ok(detailed_feedback)
-
+    let issues= identfy_issues(&result).await?;
+    let practice_assignment = assign_problems(&issues).await?;
+    Ok(practice_assignment)
 }
