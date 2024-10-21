@@ -1,13 +1,14 @@
 use clap::Parser;
 mod commands;
+mod utils;
 
 #[derive(Parser)]
 struct Cli {
     command:String,
 }
 
-
-fn main() {
+#[tokio::main]
+async fn main() {
     /*	
         Step 1:
         Create empty cli commands: larn init, larn add, and larn learn [Done]
@@ -20,21 +21,16 @@ fn main() {
         Step 5
         Implement function to read all feedback in Redis and pass them to LLM for finding trends in coding mistakes and giving excercises to fix those issues[Done]
         Step 6
-        Implement interactive logic for init to specify what file types user wants to track
-        Step 7
         Deploy rust package
     */
     
     let args = Cli::parse();
-    if args.command == "init"{
-        println!("larn init");
-    }
-    else if args.command == "add"{
-        println!("larn add");
-        commands::add::add();
+   if args.command == "add"{
+        let _ = commands::add::add().await;
     }
     else if args.command == "learn"{
-        commands::learn::learn();
+        let output = commands::learn::learn().await;
+        print!("{:?}",output);
     }
     else{
         println!("{} is not a valid command" , args.command);

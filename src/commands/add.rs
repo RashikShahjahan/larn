@@ -1,17 +1,27 @@
 
 use core::str;
-use std::process::Command;
+use std::{error::Error, process::Command};
 use redis::Commands;
-use reqwest::Client;
-use std::env;
-use serde_json::json;
-use std::error::Error;
-use serde_json::Value;
 extern crate redis;
 
+use crate::utils::gpt::prompt_gpt;
 fn get_changes()->String{
-    //Here you go
-    let diff = Command::new("git").arg("diff").arg("--").arg("*.rs").output().expect("Failed to execute diff");
+    let diff = Command::new("git")
+    .arg("diff")
+    .arg("--")
+    .arg("*.rs")
+    .arg("*.py")
+    .arg("*.js")
+    .arg("*.cpp")
+    .arg("*.java")
+    .arg("*.c")
+    .arg("*.ts")
+    .arg("*.go")
+    .arg("*.rb")
+    .arg("*.php")
+    .output()
+    .expect("Failed to execute diff");
+
     Command::new("git").arg("add").arg(".").status().expect("Failed to execute add");
     let diff_string = str::from_utf8(&diff.stdout)
         .expect("Failed to convert output to string")
@@ -30,53 +40,27 @@ fn add_feedback(val:&str) -> redis::RedisResult<String> {
 }
 
 
-
-#[tokio::main] 
-async fn get_feedback(changes:&str) -> Result<(), Box<dyn Error>> {
-    let openai_api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
-
-    let client = Client::new();
-
-    let request_body = json!({
-        "model": "gpt-4o",
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are a highly skilled code reviewer. You will analyze the following git diffs to find 3 mistakes and/or areas of improvement. Do not write any code.Make your suggestions concise."
-            },
-            {
-                "role": "user",
-                "content": changes
-            }
-        ]
-    });
-
-    let response = client
-        .post("https://api.openai.com/v1/chat/completions")
-        .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", openai_api_key))
-        .json(&request_body)
-        .send()
-        .await?; 
-
-    let response_json:Value = response.json().await?;
-
-    if let Some(choices) = response_json["choices"].as_array() {
-        if let Some(choice) = choices.get(0) {
-            if let Some(message) = choice["message"]["content"].as_str() {
-                println!("Assistant's response: {}", message);
-                let _ = add_feedback(message);
-            }
-        }
-    }
-
-    Ok(())
-
-
+async fn get_feedback(changes: &str)-> Result<String, Box<dyn Error>> {
+    let system_prompt = "Please review the following code changes. Consider:
+                        1. Code quality and adherence to best practices.
+                        2. Potential bugs or edge cases.
+                        3. Performance optimizations.
+                        4. Readability and maintainability.
+                        5. Any security concerns. 
+                        Do not write any code or provide improvements. Just look for flaws.";
+    
+                        let response = prompt_gpt(system_prompt, changes, "gpt-4o").await?;
+                        Ok(response)
 }
 
 
-pub fn add(){
+
+pub async fn add() -> Result<(), Box<dyn Error>> {
     let changes = get_changes();
-    let _ = get_feedback(&changes);
+    let feedback = get_feedback(&changes).await?;
+    add_feedback(&feedback)?;
+    print!("{:?}",feedback);
+
+    Ok(())
+
 }
