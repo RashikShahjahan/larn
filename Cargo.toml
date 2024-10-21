@@ -1,6 +1,6 @@
 [package]
 name = "larn"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Rashik <rashikshahjahan@protonmail.com>"]
 description = "Larn is a command-line tool designed to help software engineers improve their coding skills through AI-driven feedback. It analyzes code changes, identifies areas of improvement, and generates personalized programming exercises."
