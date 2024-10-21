@@ -15,7 +15,6 @@ struct Cli {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let root_dir = get_root_directory()?;
-
     let args = Cli::parse();
 
     if args.command == "add" {
