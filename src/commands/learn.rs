@@ -36,7 +36,7 @@ fn retrieve_feedback() -> Result<String, Box<dyn Error>> {
 
 
 async fn identfy_issues(feedback: &str)-> Result<String, Box<dyn Error>> {
-    let system_prompt = "Please review this list of flaws in a software engineers code changes and identify upto 3 things software engineer is most struggling with.";
+    let system_prompt = "Please review this list of flaws in a software engineers code changes and identify upto 3 things software engineer is most struggling with based on this.";
     
                         let response = prompt_gpt(system_prompt, feedback, "gpt-4o").await?;
                         Ok(response)
