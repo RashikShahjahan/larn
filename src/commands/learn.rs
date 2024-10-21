@@ -12,13 +12,13 @@ fn retrieve_feedback() -> Result<String, Box<dyn Error>> {
         let (next_cursor, keys): (u64, Vec<String>) = redis::cmd("SCAN")
             .cursor_arg(cursor)
             .arg("MATCH")
-            .arg("*")
+            .arg("*larn")  
             .query(&mut con)?;
 
         for key in keys {
             let value: String = con.get(&key)?;
             result.push_str(&value);
-            con.del(&key)?;
+            con.del(&key)?;  
         }
 
         cursor = next_cursor;

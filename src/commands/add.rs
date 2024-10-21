@@ -61,13 +61,15 @@ fn get_changes(directory: &str) -> String {
 }
 
 
-fn add_feedback(val:&str) -> redis::RedisResult<String> {
+fn add_feedback(val: &str) -> redis::RedisResult<String> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
     let key: i32 = con.incr("feedback_counter", 1)?;
 
-    let _: () = con.set(key.to_string(), val)?;
-    Ok(key.to_string())
+    let full_key = format!("{}larn", key);
+
+    let _: () = con.set(&full_key, val)?;
+    Ok(full_key)
 }
 
 
