@@ -8,7 +8,7 @@ use std::fs;
 
 fn get_changes(directory: &str) -> String {
     let mut file_args = Vec::new();
-    let extensions = vec!["rs", "py", "js", "cpp", "java", "c", "ts", "go", "rb", "php"];
+    let extensions = vec!["rs", "py", "js", "cpp", "java", "c", "ts", "go", "rb", "php","tsx","jsx"];
     
     for entry in fs::read_dir(directory).expect("Directory read failed") {
         let entry = entry.expect("Failed to get directory entry");
